@@ -1,0 +1,12 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    group 'com.github.ptomaszek.mastermind'
+    version '1.0-SNAPSHOT'
+
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+    }
+}
