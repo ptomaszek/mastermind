@@ -1,10 +1,10 @@
 package com.github.ptomaszek.mastermind.board;
 
-import com.github.ptomaszek.mastermind.board.insert.Color;
-import com.github.ptomaszek.mastermind.board.insert.Peg;
 import com.github.ptomaszek.mastermind.board.exception.WrongNumberOfInsertsException;
+import com.github.ptomaszek.mastermind.board.insert.Color;
 import com.github.ptomaszek.mastermind.board.insert.EnigmaInsert;
 import com.github.ptomaszek.mastermind.board.insert.GuessInsert;
+import com.github.ptomaszek.mastermind.board.insert.Peg;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 
 import static com.github.ptomaszek.mastermind.board.util.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
 
 public class PegsCalculator {
@@ -46,6 +47,7 @@ public class PegsCalculator {
 
         final List<Peg> pegsList = newArrayList(pegs);
         pegsList.removeIf(Objects::isNull);
+        pegsList.sort(naturalOrder());
         return pegsList;
     }
 

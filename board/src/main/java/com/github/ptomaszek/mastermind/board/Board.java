@@ -2,8 +2,7 @@ package com.github.ptomaszek.mastermind.board;
 
 import com.github.ptomaszek.mastermind.board.exception.ColorsNotInColorPoolException;
 import com.github.ptomaszek.mastermind.board.exception.EnigmaNotSetException;
-import com.github.ptomaszek.mastermind.board.exception.LastInsertAlreadyCorrectException;
-import com.github.ptomaszek.mastermind.board.exception.NoMoreLivesException;
+import com.github.ptomaszek.mastermind.board.exception.GameEndedException;
 import com.github.ptomaszek.mastermind.board.exception.NonUniqueColorsException;
 import com.github.ptomaszek.mastermind.board.insert.Color;
 import com.github.ptomaszek.mastermind.board.insert.EnigmaInsert;
@@ -18,10 +17,13 @@ import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.Optional;
 
-import static com.github.ptomaszek.mastermind.board.insert.Color.BLACK;
+import static com.github.ptomaszek.mastermind.board.GameEndedStatus.PLAYER_LOST;
+import static com.github.ptomaszek.mastermind.board.GameEndedStatus.PLAYER_WON;
 import static com.github.ptomaszek.mastermind.board.insert.Color.BLUE;
 import static com.github.ptomaszek.mastermind.board.insert.Color.GREEN;
+import static com.github.ptomaszek.mastermind.board.insert.Color.ORANGE;
 import static com.github.ptomaszek.mastermind.board.insert.Color.RED;
 import static com.github.ptomaszek.mastermind.board.insert.Color.WHITE;
 import static com.github.ptomaszek.mastermind.board.insert.Color.YELLOW;
@@ -49,22 +51,12 @@ public class Board {
         return history;
     }
 
-    public final EnigmaInsert getEnigmaInsert() {
-        return enigmaInsert;
-    }
+    public List<Peg> insertColors(List<Color> colors) {
+        gameEndedStatus().ifPresent(status -> {
+            throw new GameEndedException(status);
+        });
 
-    public final boolean isUnique() {
-        return unique;
-    }
-
-    public final int getLives() {
-        return lives;
-    }
-
-    public List<Peg> insertColors(Color... colors) {
-        checkGameIsAlreadyFinished();
-
-        final GuessInsert guessInsert = new GuessInsert(colors);
+        final GuessInsert guessInsert = new GuessInsert(ImmutableList.copyOf(colors));
         checkInsertHasUniqueColors(unique, guessInsert);
         checkInsertInColorPool(colorsPool, guessInsert);
 
@@ -73,16 +65,21 @@ public class Board {
         return pegs;
     }
 
-    private void checkGameIsAlreadyFinished() {
-        checkArgument(history.getHistoryList().size() <= lives, NoMoreLivesException::new);
-        history.getLast().ifPresent(last ->
-                checkArgument(last.getPegs().stream()
-                                .filter(peg -> peg == Peg.GREEN)
-                                .count() == enigmaInsert.colors().size(),
-                        LastInsertAlreadyCorrectException::new)
-        );
+    public List<Peg> insertColors(Color... colors) {
+        return insertColors(ImmutableList.copyOf(colors));
     }
 
+    public Optional<GameEndedStatus> gameEndedStatus() {
+        if (history.getHistoryList().size() == lives) {
+            return Optional.of(PLAYER_LOST);
+        }
+
+        if (history.getLast().isPresent() && history.getLast().get().getPegs().stream().filter(peg -> peg == Peg.GREEN).count() == enigmaInsert.colors().size()) {
+            return Optional.of(PLAYER_WON);
+        }
+
+        return Optional.empty();
+    }
 
     private static void checkInsertInColorPool(ImmutableSet<Color> colorsPool, Insert insert) {
         checkArgument(colorsPool.containsAll(insert.colors()), ColorsNotInColorPoolException::new);
@@ -94,8 +91,13 @@ public class Board {
         }
     }
 
+    public int livesLeft() {
+        return lives - history.getHistoryList().size();
+    }
+
+
     public static final class BoardBuilder {
-        private ImmutableSet<Color> colorsPool = ImmutableSet.of(RED, BLUE, GREEN, WHITE, BLACK, YELLOW);
+        private ImmutableSet<Color> colorsPool = ImmutableSet.of(RED, BLUE, GREEN, WHITE, ORANGE, YELLOW);
         private boolean unique = true;
         private int lives = 10;
         private EnigmaInsert enigmaInsert;

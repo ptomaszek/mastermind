@@ -11,16 +11,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.ptomaszek.mastermind.board.insert.Color.BLACK;
 import static com.github.ptomaszek.mastermind.board.insert.Color.BLUE;
 import static com.github.ptomaszek.mastermind.board.insert.Color.GREEN;
+import static com.github.ptomaszek.mastermind.board.insert.Color.ORANGE;
 import static com.github.ptomaszek.mastermind.board.insert.Color.RED;
 import static com.github.ptomaszek.mastermind.board.insert.Color.WHITE;
 import static com.github.ptomaszek.mastermind.board.insert.Color.YELLOW;
 
 class PegsCalculatorTest {
 
-    final PegsCalculator pegsCalculator = new PegsCalculator();
+    private final PegsCalculator pegsCalculator = new PegsCalculator();
 
     @ParameterizedTest
     @MethodSource("insertsAndExpectedPegsCount")
@@ -42,20 +42,20 @@ class PegsCalculatorTest {
         return Stream.of(
                 Arguments.of(enigma, new GuessInsert(RED, BLUE, GREEN, WHITE), 4, 0),
                 Arguments.of(enigma, new GuessInsert(BLUE, RED, GREEN, WHITE), 2, 2),
-                Arguments.of(enigma, new GuessInsert(BLACK, BLUE, GREEN, WHITE), 3, 0),
-                Arguments.of(enigma, new GuessInsert(BLACK, GREEN, BLUE, YELLOW), 0, 2),
+                Arguments.of(enigma, new GuessInsert(ORANGE, BLUE, GREEN, WHITE), 3, 0),
+                Arguments.of(enigma, new GuessInsert(ORANGE, GREEN, BLUE, YELLOW), 0, 2),
 
                 Arguments.of(enigma2, new GuessInsert(RED, RED, GREEN, WHITE), 4, 0),
                 Arguments.of(enigma2, new GuessInsert(GREEN, WHITE, RED, RED), 0, 4),
                 Arguments.of(enigma2, new GuessInsert(RED, RED, RED, RED), 2, 0),
                 Arguments.of(enigma2, new GuessInsert(WHITE, WHITE, WHITE, GREEN), 0, 2),
-                Arguments.of(enigma2, new GuessInsert(WHITE, WHITE, WHITE, BLACK), 0, 1),
+                Arguments.of(enigma2, new GuessInsert(WHITE, WHITE, WHITE, ORANGE), 0, 1),
                 Arguments.of(enigma2, new GuessInsert(WHITE, WHITE, WHITE, WHITE), 1, 0),
                 Arguments.of(enigma2, new GuessInsert(BLUE, RED, GREEN, WHITE), 3, 0),
-                Arguments.of(enigma2, new GuessInsert(BLACK, BLUE, GREEN, WHITE), 2, 0),
-                Arguments.of(enigma2, new GuessInsert(BLACK, GREEN, BLUE, YELLOW), 0, 1),
-                Arguments.of(enigma2, new GuessInsert(BLACK, BLACK, RED, YELLOW), 0, 1),
-                Arguments.of(enigma2, new GuessInsert(BLACK, BLACK, BLACK, YELLOW), 0, 0)
+                Arguments.of(enigma2, new GuessInsert(ORANGE, BLUE, GREEN, WHITE), 2, 0),
+                Arguments.of(enigma2, new GuessInsert(ORANGE, GREEN, BLUE, YELLOW), 0, 1),
+                Arguments.of(enigma2, new GuessInsert(ORANGE, ORANGE, RED, YELLOW), 0, 1),
+                Arguments.of(enigma2, new GuessInsert(ORANGE, ORANGE, ORANGE, YELLOW), 0, 0)
         );
     }
 }
