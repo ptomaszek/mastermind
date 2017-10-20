@@ -1,8 +1,8 @@
 package com.github.ptomaszek.mastermind.exception;
 
-public class InsertsNotInColorPoolException extends MastermindException {
+public class ColorsNotInColorPoolException extends MastermindException {
 
-    public InsertsNotInColorPoolException() {
+    public ColorsNotInColorPoolException() {
         super("Chosen colors must belong to the color pool");
     }
 }

@@ -1,9 +1,11 @@
 package com.github.ptomaszek.mastermind;
 
-import com.github.ptomaszek.mastermind.exception.InsertsNotInColorPoolException;
+import com.github.ptomaszek.mastermind.exception.ColorsNotInColorPoolException;
 import com.github.ptomaszek.mastermind.exception.MastermindException;
-import com.github.ptomaszek.mastermind.exception.NonUniqueInsertsException;
+import com.github.ptomaszek.mastermind.exception.NonUniqueColorsException;
 import com.github.ptomaszek.mastermind.exception.WrongNumberOfInsertsException;
+import com.github.ptomaszek.mastermind.insert.Color;
+import com.github.ptomaszek.mastermind.insert.Peg;
 import com.github.ptomaszek.mastermind.test.asserter.PegsAssert;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -13,12 +15,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.ptomaszek.mastermind.Board.BoardBuilder.aBoard;
-import static com.github.ptomaszek.mastermind.Color.BLACK;
-import static com.github.ptomaszek.mastermind.Color.BLUE;
-import static com.github.ptomaszek.mastermind.Color.GREEN;
-import static com.github.ptomaszek.mastermind.Color.RED;
-import static com.github.ptomaszek.mastermind.Color.WHITE;
-import static com.github.ptomaszek.mastermind.Color.YELLOW;
+import static com.github.ptomaszek.mastermind.insert.Color.BLACK;
+import static com.github.ptomaszek.mastermind.insert.Color.BLUE;
+import static com.github.ptomaszek.mastermind.insert.Color.GREEN;
+import static com.github.ptomaszek.mastermind.insert.Color.RED;
+import static com.github.ptomaszek.mastermind.insert.Color.WHITE;
+import static com.github.ptomaszek.mastermind.insert.Color.YELLOW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.util.Arrays.array;
@@ -81,10 +83,10 @@ class BoardTest {
         final Board boardWithLimitedColorPool = aBoard().colorsPool(RED, BLUE, GREEN, WHITE).enigmaColors(RED, BLUE, GREEN, WHITE).build();
 
         return Stream.of(
-                Arguments.of(boardWithUniqueInserts, array(RED, BLUE, GREEN, WHITE, WHITE), WrongNumberOfInsertsException.class),
+                Arguments.of(boardWithUniqueInserts, array(RED, BLUE, GREEN, WHITE, BLACK), WrongNumberOfInsertsException.class),
                 Arguments.of(boardWithUniqueInserts, array(RED, BLUE, GREEN), WrongNumberOfInsertsException.class),
-                Arguments.of(boardWithUniqueInserts, array(RED, BLUE, GREEN, GREEN), NonUniqueInsertsException.class),
-                Arguments.of(boardWithLimitedColorPool, array(RED, BLUE, GREEN, BLACK), InsertsNotInColorPoolException.class)
+                Arguments.of(boardWithUniqueInserts, array(RED, BLUE, GREEN, GREEN), NonUniqueColorsException.class),
+                Arguments.of(boardWithLimitedColorPool, array(RED, BLUE, GREEN, BLACK), ColorsNotInColorPoolException.class)
         );
     }
 }

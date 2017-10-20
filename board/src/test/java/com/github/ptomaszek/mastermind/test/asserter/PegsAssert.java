@@ -1,6 +1,6 @@
 package com.github.ptomaszek.mastermind.test.asserter;
 
-import com.github.ptomaszek.mastermind.Peg;
+import com.github.ptomaszek.mastermind.insert.Peg;
 import org.assertj.core.api.ListAssert;
 
 import java.util.List;
