@@ -1,4 +1,4 @@
-package com.github.ptomaszek.mastermind.insert;
+package com.github.ptomaszek.mastermind.board.insert;
 
 import com.google.common.collect.ImmutableList;
 

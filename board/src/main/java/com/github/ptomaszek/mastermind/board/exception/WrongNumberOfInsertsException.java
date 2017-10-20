@@ -1,4 +1,4 @@
-package com.github.ptomaszek.mastermind.exception;
+package com.github.ptomaszek.mastermind.board.exception;
 
 public class WrongNumberOfInsertsException extends MastermindException {
     public WrongNumberOfInsertsException() {

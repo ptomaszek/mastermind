@@ -1,4 +1,4 @@
-package com.github.ptomaszek.mastermind.exception;
+package com.github.ptomaszek.mastermind.board.exception;
 
 import static java.lang.String.format;
 

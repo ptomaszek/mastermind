@@ -1,10 +1,10 @@
-package com.github.ptomaszek.mastermind;
+package com.github.ptomaszek.mastermind.board;
 
-import com.github.ptomaszek.mastermind.exception.WrongNumberOfInsertsException;
-import com.github.ptomaszek.mastermind.insert.Color;
-import com.github.ptomaszek.mastermind.insert.EnigmaInsert;
-import com.github.ptomaszek.mastermind.insert.GuessInsert;
-import com.github.ptomaszek.mastermind.insert.Peg;
+import com.github.ptomaszek.mastermind.board.insert.Color;
+import com.github.ptomaszek.mastermind.board.insert.Peg;
+import com.github.ptomaszek.mastermind.board.exception.WrongNumberOfInsertsException;
+import com.github.ptomaszek.mastermind.board.insert.EnigmaInsert;
+import com.github.ptomaszek.mastermind.board.insert.GuessInsert;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -13,13 +13,13 @@ import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
-import static com.github.ptomaszek.mastermind.util.Preconditions.checkArgument;
+import static com.github.ptomaszek.mastermind.board.util.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 
 public class PegsCalculator {
 
-    List<Peg> calculatePegs(final EnigmaInsert enigma, GuessInsert insert) {
+    public List<Peg> calculatePegs(final EnigmaInsert enigma, GuessInsert insert) {
         checkArgument(insert.colors().size() == enigma.colors().size(), WrongNumberOfInsertsException::new);
 
         final Peg[] pegs = new Peg[insert.colors().size()];

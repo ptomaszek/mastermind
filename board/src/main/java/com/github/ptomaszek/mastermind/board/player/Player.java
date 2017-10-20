@@ -1,7 +1,7 @@
-package com.github.ptomaszek.mastermind.player;
+package com.github.ptomaszek.mastermind.board.player;
 
-import com.github.ptomaszek.mastermind.Board;
-import com.github.ptomaszek.mastermind.insert.Color;
+import com.github.ptomaszek.mastermind.board.Board;
+import com.github.ptomaszek.mastermind.board.insert.Color;
 
 public abstract class Player {
     private final Board board;
