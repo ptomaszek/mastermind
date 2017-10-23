@@ -1,13 +1,12 @@
 package com.github.ptomaszek.mastermind.game;
 
 import com.github.ptomaszek.mastermind.board.Board;
+import com.github.ptomaszek.mastermind.board.feedback.Feedback;
 import com.github.ptomaszek.mastermind.board.insert.Color;
-import com.github.ptomaszek.mastermind.board.insert.Peg;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
@@ -20,7 +19,12 @@ import static com.google.common.collect.MoreCollectors.onlyElement;
 import static java.util.stream.Collectors.toList;
 
 public class ConsoleGame {
+
     private Board board;
+
+    public static void main(String[] args) {
+        new ConsoleGame(aBoard().enigmaColors(RED, GREEN, BLUE, ORANGE).build()).play();
+    }
 
     public ConsoleGame(Board board) {
         Preconditions.checkNotNull(board, "Board cannot be null");
@@ -31,7 +35,7 @@ public class ConsoleGame {
         final Scanner scanner = new Scanner(System.in);
 
         System.out.print("Available colors: ");
-        Stream.of(board.getColorsPool()).forEach(System.out::print);
+        Stream.of(board.colorsPool()).forEach(System.out::print);
         System.out.println();
         System.out.println();
 
@@ -42,8 +46,9 @@ public class ConsoleGame {
             final String colors = scanner.nextLine();
 
             try {
-                final List<Peg> pegs = board.insertColors(Stream.of(colors.split(" ")).map(colorName -> findColor(board.getColorsPool(), colorName)).collect(toList()));
-                Stream.of(pegs).forEach(System.out::print);
+                final Feedback feedback = board.insertColors(Stream.of(colors.split(" ")).map(colorName -> findColor(board.colorsPool(), colorName)).collect(toList()));
+                System.out.print("Green: " + feedback.greenPegsCount());
+                System.out.println(" | White: " + feedback.whitePegsCount());
                 System.out.println();
             } catch (RuntimeException ex) {
                 System.err.println(ExceptionUtils.getMessage(ex));
@@ -57,9 +62,5 @@ public class ConsoleGame {
 
     private Color findColor(ImmutableSet<Color> colorsPool, String colorName) {
         return colorsPool.stream().filter(actualColor -> actualColor.name().startsWith(colorName.toUpperCase())).collect(onlyElement());
-    }
-
-    public static void main(String[] args) {
-        new ConsoleGame(aBoard().enigmaColors(RED, GREEN, BLUE, ORANGE).build()).play();
     }
 }

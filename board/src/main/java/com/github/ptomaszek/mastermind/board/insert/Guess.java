@@ -2,12 +2,12 @@ package com.github.ptomaszek.mastermind.board.insert;
 
 import com.google.common.collect.ImmutableList;
 
-public class GuessInsert extends Insert {
-    public GuessInsert(Color... colors) {
+public class Guess extends Insert {
+    public Guess(Color... colors) {
         super(colors);
     }
 
-    public GuessInsert(ImmutableList<Color> colors) {
+    public Guess(ImmutableList<Color> colors) {
         super(colors);
     }
 }

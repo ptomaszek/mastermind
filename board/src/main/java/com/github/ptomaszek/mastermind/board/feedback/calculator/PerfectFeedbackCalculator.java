@@ -1,26 +1,24 @@
-package com.github.ptomaszek.mastermind.board;
+package com.github.ptomaszek.mastermind.board.feedback.calculator;
 
 import com.github.ptomaszek.mastermind.board.exception.WrongNumberOfInsertsException;
+import com.github.ptomaszek.mastermind.board.feedback.Feedback;
+import com.github.ptomaszek.mastermind.board.feedback.Peg;
 import com.github.ptomaszek.mastermind.board.insert.Color;
-import com.github.ptomaszek.mastermind.board.insert.EnigmaInsert;
-import com.github.ptomaszek.mastermind.board.insert.GuessInsert;
-import com.github.ptomaszek.mastermind.board.insert.Peg;
+import com.github.ptomaszek.mastermind.board.insert.Enigma;
+import com.github.ptomaszek.mastermind.board.insert.Guess;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 import static com.github.ptomaszek.mastermind.board.util.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.toList;
 
-public class PegsCalculator {
+public class PerfectFeedbackCalculator extends FeedbackCalculator {
 
-    public List<Peg> calculatePegs(final EnigmaInsert enigma, GuessInsert insert) {
+    public Feedback calculateFeedback(final Enigma enigma, Guess insert) {
         checkArgument(insert.colors().size() == enigma.colors().size(), WrongNumberOfInsertsException::new);
 
         final Peg[] pegs = new Peg[insert.colors().size()];
@@ -45,10 +43,7 @@ public class PegsCalculator {
                                 }
                         ));
 
-        final List<Peg> pegsList = newArrayList(pegs);
-        pegsList.removeIf(Objects::isNull);
-        pegsList.sort(naturalOrder());
-        return pegsList;
+        return Feedback.of(pegs);
     }
 
 

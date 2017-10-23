@@ -1,8 +1,8 @@
 package com.github.ptomaszek.mastermind.board.insert;
 
-public class EnigmaInsert extends Insert {
+public class Enigma extends Insert {
 
-    public EnigmaInsert(Color... colors) {
+    public Enigma(Color... colors) {
         super(colors);
     }
 }

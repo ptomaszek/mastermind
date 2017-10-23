@@ -4,12 +4,15 @@ import com.github.ptomaszek.mastermind.board.exception.ColorsNotInColorPoolExcep
 import com.github.ptomaszek.mastermind.board.exception.EnigmaNotSetException;
 import com.github.ptomaszek.mastermind.board.exception.GameEndedException;
 import com.github.ptomaszek.mastermind.board.exception.NonUniqueColorsException;
+import com.github.ptomaszek.mastermind.board.feedback.Feedback;
+import com.github.ptomaszek.mastermind.board.feedback.calculator.FeedbackCalculator;
+import com.github.ptomaszek.mastermind.board.feedback.calculator.PerfectFeedbackCalculator;
+import com.github.ptomaszek.mastermind.board.history.HistoricalEntry;
+import com.github.ptomaszek.mastermind.board.history.History;
 import com.github.ptomaszek.mastermind.board.insert.Color;
-import com.github.ptomaszek.mastermind.board.insert.EnigmaInsert;
-import com.github.ptomaszek.mastermind.board.insert.GuessInsert;
+import com.github.ptomaszek.mastermind.board.insert.Enigma;
+import com.github.ptomaszek.mastermind.board.insert.Guess;
 import com.github.ptomaszek.mastermind.board.insert.Insert;
-import com.github.ptomaszek.mastermind.board.insert.InsertAndPegs;
-import com.github.ptomaszek.mastermind.board.insert.Peg;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -34,38 +37,38 @@ import static java.util.stream.Collectors.toList;
 public class Board {
 
     private ImmutableSet<Color> colorsPool;
-    private EnigmaInsert enigmaInsert;
+    private Enigma enigma;
     private boolean unique;
     private int lives;
     private History history;
-    private PegsCalculator pegsCalculator = new PegsCalculator();
+    private FeedbackCalculator feedbackCalculator;
 
     private Board() {
     }
 
-    public ImmutableSet<Color> getColorsPool() {
+    public ImmutableSet<Color> colorsPool() {
         return colorsPool;
     }
 
-    public History getHistory() {
+    public History history() {
         return history;
     }
 
-    public List<Peg> insertColors(List<Color> colors) {
+    public Feedback insertColors(List<Color> colors) {
         gameEndedStatus().ifPresent(status -> {
             throw new GameEndedException(status);
         });
 
-        final GuessInsert guessInsert = new GuessInsert(ImmutableList.copyOf(colors));
-        checkInsertHasUniqueColors(unique, guessInsert);
-        checkInsertInColorPool(colorsPool, guessInsert);
+        final Guess guess = new Guess(ImmutableList.copyOf(colors));
+        checkInsertHasUniqueColors(unique, guess);
+        checkInsertInColorPool(colorsPool, guess);
 
-        final List<Peg> pegs = pegsCalculator.calculatePegs(enigmaInsert, guessInsert);
-        history.saveGuessInsertAndPegs(guessInsert, pegs);
-        return pegs;
+        final Feedback feedback = feedbackCalculator.calculateFeedback(enigma, guess);
+        history.save(guess, feedback);
+        return feedback;
     }
 
-    public List<Peg> insertColors(Color... colors) {
+    public Feedback insertColors(Color... colors) {
         return insertColors(ImmutableList.copyOf(colors));
     }
 
@@ -74,7 +77,7 @@ public class Board {
             return Optional.of(PLAYER_LOST);
         }
 
-        if (history.getLast().isPresent() && history.getLast().get().getPegs().stream().filter(peg -> peg == Peg.GREEN).count() == enigmaInsert.colors().size()) {
+        if (history.getLast().isPresent() && history.getLast().get().getFeedback().greenPegsCount() == enigma.colors().size()) {
             return Optional.of(PLAYER_WON);
         }
 
@@ -100,8 +103,9 @@ public class Board {
         private ImmutableSet<Color> colorsPool = ImmutableSet.of(RED, BLUE, GREEN, WHITE, ORANGE, YELLOW);
         private boolean unique = true;
         private int lives = 10;
-        private EnigmaInsert enigmaInsert;
-        private ImmutableList<GuessInsert> historicalInserts;
+        private Enigma enigma;
+        private ImmutableList<Guess> historicalInserts;
+        private FeedbackCalculator feedbackCalculator = new PerfectFeedbackCalculator();
 
         private BoardBuilder() {
         }
@@ -110,13 +114,18 @@ public class Board {
             return new BoardBuilder();
         }
 
+        public BoardBuilder feedbackCalculator(FeedbackCalculator feedbackCalculator) {
+            this.feedbackCalculator = feedbackCalculator;
+            return this;
+        }
+
         public BoardBuilder colorsPool(Color... colorsPool) {
             this.colorsPool = ImmutableSet.copyOf(colorsPool);
             return this;
         }
 
         public BoardBuilder enigmaColors(Color... colors) {
-            this.enigmaInsert = new EnigmaInsert(colors);
+            this.enigma = new Enigma(colors);
             return this;
         }
 
@@ -130,32 +139,33 @@ public class Board {
             return this;
         }
 
-        public BoardBuilder history(ImmutableList<GuessInsert> inserts) {
+        public BoardBuilder history(ImmutableList<Guess> inserts) {
             this.historicalInserts = inserts;
             return this;
         }
 
         public Board build() {
-            checkNotNull(enigmaInsert, EnigmaNotSetException::new);
+            checkNotNull(enigma, EnigmaNotSetException::new);
             Preconditions.checkArgument(lives > 0, "Lives number must be positive");
 
             final Board board = new Board();
+            board.feedbackCalculator = this.feedbackCalculator;
             board.unique = this.unique;
-            board.enigmaInsert = this.enigmaInsert;
+            board.enigma = this.enigma;
             board.colorsPool = this.colorsPool;
             board.lives = this.lives;
 
             if (CollectionUtils.isEmpty(historicalInserts)) {
                 board.history = new History();
             } else {
-                final List<InsertAndPegs> historicalInsertsAndPegs = historicalInserts.stream()
-                        .map(insert -> new InsertAndPegs(insert, board.pegsCalculator.calculatePegs(enigmaInsert, insert)))
+                final List<HistoricalEntry> historicalInsertsAndPegs = historicalInserts.stream()
+                        .map(insert -> HistoricalEntry.of(insert, board.feedbackCalculator.calculateFeedback(enigma, insert)))
                         .collect(toList());
                 board.history = new History(historicalInsertsAndPegs);
             }
 
-            checkInsertInColorPool(colorsPool, enigmaInsert);
-            checkInsertHasUniqueColors(unique, enigmaInsert);
+            checkInsertInColorPool(colorsPool, enigma);
+            checkInsertHasUniqueColors(unique, enigma);
 
             return board;
         }
